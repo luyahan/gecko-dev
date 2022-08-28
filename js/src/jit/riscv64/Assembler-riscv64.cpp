@@ -401,8 +401,8 @@ bool Assembler::oom() const {
   return m_buffer.oom() || jumpRelocations_.oom() || dataRelocations_.oom();
 }
 
-void Assembler::disassembleInstr(Instr instr) {
-  if (!FLAG_riscv_debug)
+void Assembler::disassembleInstr(Instr instr, bool enable_spew) {
+  if (!FLAG_riscv_debug && !enable_spew)
     return;
   disasm::NameConverter converter;
   disasm::Disassembler disasm(converter);
@@ -410,6 +410,9 @@ void Assembler::disassembleInstr(Instr instr) {
 
   disasm.InstructionDecode(disasm_buffer, reinterpret_cast<byte*>(&instr));
   DEBUG_PRINTF("%s\n", disasm_buffer.start());
+  if(enable_spew) {
+    JitSpew(JitSpew_Codegen,"%s", disasm_buffer.start());
+  }
 }
 
 void Assembler::BlockTrampolinePoolFor(int instructions) {
